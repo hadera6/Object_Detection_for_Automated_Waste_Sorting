@@ -79,3 +79,10 @@ def stratified_split(records, ratios, seed):
         splits["val"] += group[n_train:n_train + n_val]
         splits["test"] += group[n_train + n_val:]
     return splits
+
+
+def write_split_lists(splits, dataset_dir):
+    """Write train.txt, val.txt and test.txt: one image path per line, relative to dataset_dir."""
+    for name, recs in splits.items():
+        paths = sorted(f"./images/{r['image'].name}" for r in recs)
+        (dataset_dir / f"{name}.txt").write_text("\n".join(paths) + "\n")
