@@ -16,7 +16,9 @@ Project layout:
     ├── Code/config.py, Code/data.py, Code/train.py
     └── GarbageDataset/images, labels   (+ train.txt, val.txt, test.txt, data.yaml written here)
 """
+import random
 import re
+from collections import defaultdict
 
 from config import CLASS_NAMES, DATASET_DIR
 
@@ -59,3 +61,21 @@ def remove_invalid_boxes(records, invalid):
         if r["image"].name in invalid:
             lines = [f"{c} {x} {y} {w} {h}" for c, x, y, w, h in r["boxes"]]
             r["label"].write_text("\n".join(lines) + ("\n" if lines else ""))
+
+# =================================================================== split
+def stratified_split(records, ratios, seed):
+    """Assign each record to train/val/test, keeping the same ratio inside every image class."""
+    rng = random.Random(seed)
+    by_class = defaultdict(list)
+    for r in records:
+        by_class[r["source"]].append(r)
+    splits = {name: [] for name in ratios}
+    for cls in sorted(by_class):
+        group = by_class[cls]
+        rng.shuffle(group)
+        n_train = round(len(group) * ratios["train"])
+        n_val = round(len(group) * ratios["val"])
+        splits["train"] += group[:n_train]
+        splits["val"] += group[n_train:n_train + n_val]
+        splits["test"] += group[n_train + n_val:]
+    return splits
