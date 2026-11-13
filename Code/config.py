@@ -11,9 +11,21 @@ ROOT = Path(__file__).resolve().parent.parent        # project root (the folder 
 DATASET_DIR = ROOT / "GarbageDataset"                # unzipped dataset: images/ + labels/
 DATA_YAML = DATASET_DIR / "data.yaml"                # written by data.py
 
+RESULTS_DIR = ROOT / "results"                       # training runs
+WEIGHTS_DIR = ROOT / "weights"                       # final model: best.pt
+
 
 # =================================================================== dataset
 # Class IDs follow alphabetical order (verified against the filename prefixes).
 CLASS_NAMES = ["biodegradable", "cardboard", "glass", "metal", "paper", "plastic"]
 SPLIT_RATIOS = {"train": 0.70, "val": 0.15, "test": 0.15}
 SEED = 42
+
+
+# =================================================================== training
+MODEL = "yolov5su.pt"    # YOLOv5-small, COCO-pretrained
+RUN_NAME = "yolov5s_640"
+EPOCHS = 50
+PATIENCE = 15            # early stopping: epochs without validation improvement
+IMG_SIZE = 640           # upscaled from 416 to help small objects
+BATCH = 16
