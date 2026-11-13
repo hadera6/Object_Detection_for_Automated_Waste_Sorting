@@ -37,3 +37,16 @@ def parse_label_line(line):
     if not all(0 <= v <= 1 for v in (x, y, w, h)):
         return None
     return c, x, y, w, h
+
+
+def load_dataset(dataset_dir):
+    """Read all images and labels. Returns a list of records and the number of invalid boxes per image."""
+    records, invalid = [], {}
+    for img in sorted((dataset_dir / "images").glob("*.jpg")):
+        label = dataset_dir / "labels" / (img.stem + ".txt")
+        lines = [ln for ln in label.read_text().splitlines() if ln.strip()] if label.exists() else []
+        boxes = [b for b in map(parse_label_line, lines) if b is not None]
+        if len(boxes) < len(lines):
+            invalid[img.name] = len(lines) - len(boxes)
+        records.append({"image": img, "label": label, "source": image_class(img.name), "boxes": boxes})
+    return records, invalid
