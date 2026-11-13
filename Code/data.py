@@ -86,3 +86,10 @@ def write_split_lists(splits, dataset_dir):
     for name, recs in splits.items():
         paths = sorted(f"./images/{r['image'].name}" for r in recs)
         (dataset_dir / f"{name}.txt").write_text("\n".join(paths) + "\n")
+
+
+def write_data_yaml(dataset_dir):
+    names = "".join(f"  {i}: {n}\n" for i, n in enumerate(CLASS_NAMES))
+    (dataset_dir / "data.yaml").write_text(
+        f"path: {dataset_dir.resolve()}\ntrain: train.txt\nval: val.txt\ntest: test.txt\n\n"
+        f"nc: {len(CLASS_NAMES)}\nnames:\n{names}")
