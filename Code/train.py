@@ -1,7 +1,8 @@
 """
 Step 2: train the YOLOv5 detector and save the weights.
 
-    python Code/train.py
+    python Code/train.py              train (skipped if weights/best.pt already exists)
+    python Code/train.py --retrain    train again even if the weights exist
 
 Requires data.yaml and the split lists from 'python Code/data.py'.
 Fine-tunes a COCO-pretrained YOLOv5s with the default ultralytics augmentation
@@ -9,6 +10,7 @@ Fine-tunes a COCO-pretrained YOLOv5s with the default ultralytics augmentation
 The best checkpoint (by validation mAP) is copied to weights/best.pt.
 All settings (model, epochs, image size, batch, paths) are in config.py.
 """
+import argparse
 import shutil
 
 from config import (BATCH, DATA_YAML, EPOCHS, IMG_SIZE, MODEL, PATIENCE, RESULTS_DIR, RUN_NAME, SEED,
@@ -41,5 +43,18 @@ def train():
     return best
 
 
-if __name__ == "__main__":
+# =================================================================== main
+def main():
+    ap = argparse.ArgumentParser(description="Train the YOLOv5 garbage detector.")
+    ap.add_argument("--retrain", action="store_true", help="train again even if the weights already exist")
+    args = ap.parse_args()
+
+    best = WEIGHTS_DIR / "best.pt"
+    if best.exists() and not args.retrain:
+        print(f"{best} already exists: skipping training (use --retrain to train again).")
+        return
     print(f"Best model saved to {train()}")
+
+
+if __name__ == "__main__":
+    main()
