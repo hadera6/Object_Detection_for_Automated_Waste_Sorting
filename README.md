@@ -8,9 +8,12 @@ Computer Vision Portfolio WS2026, Assignment 1.
 
 ```
 Code/
-  config.py    all settings: paths, classes, split, model, epochs
-  data.py      load labels, remove zero-size boxes, 70/15/15 split, data.yaml
-  train.py     train YOLOv5s and save weights/best.pt
+  config.py      all settings: paths, classes, split, model, epochs, evaluation
+  data.py        load labels, remove zero-size boxes, 70/15/15 split, data.yaml
+  train.py       train YOLOv5s and save weights/best.pt
+  evaluate.py    test-set metrics: precision, recall, F1, mAP (overall and per class)
+garbage_detection.ipynb   full story: dataset analysis, decisions, training,
+                          evaluation, error analysis, example detections
 weights/best.pt   trained model
 packages.txt      dependencies
 GarbageDataset/   dataset (not in the repository): images/ + labels/
@@ -24,11 +27,23 @@ pip install -r packages.txt
 python Code/data.py               # clean labels, split, write data.yaml
 python Code/train.py              # train (skipped if weights/best.pt exists)
 python Code/train.py --retrain    # train again
+python Code/evaluate.py           # test-set metrics -> results/evaluation/
 ```
 
 A GPU is recommended (about 2 hours on a T4 for 50 epochs).
+For the full analysis with explanations, open `garbage_detection.ipynb` (also runs on Google Colab).
 
 ## Result
 
-YOLOv5s, 640 px, 50 epochs, on the held-out test set (1,571 images):
-mAP@0.5 = 0.645, mAP@[.50:.95] = 0.444, precision 0.70, recall 0.57.
+YOLOv5s, 640 px, 50 epochs, on the held-out test set (1,571 images, 11,031 objects):
+
+| Metric | Value |
+|---|---|
+| mAP@0.5 | 0.645 |
+| mAP@[.50:.95] | 0.444 |
+| Precision | 0.70 |
+| Recall | 0.57 |
+| F1 | 0.63 |
+
+Best class: glass (AP@0.5 0.765). Hardest: small, crowded biodegradable items
+(AP@[.50:.95] 0.341). Most errors are missed objects; wrong classes are rare (about 2%).
