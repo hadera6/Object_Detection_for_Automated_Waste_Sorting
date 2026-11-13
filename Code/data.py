@@ -50,3 +50,12 @@ def load_dataset(dataset_dir):
             invalid[img.name] = len(lines) - len(boxes)
         records.append({"image": img, "label": label, "source": image_class(img.name), "boxes": boxes})
     return records, invalid
+
+
+# =================================================================== cleaning
+def remove_invalid_boxes(records, invalid):
+    """Rewrite only the label files that contain invalid lines, keeping their valid boxes."""
+    for r in records:
+        if r["image"].name in invalid:
+            lines = [f"{c} {x} {y} {w} {h}" for c, x, y, w, h in r["boxes"]]
+            r["label"].write_text("\n".join(lines) + ("\n" if lines else ""))
