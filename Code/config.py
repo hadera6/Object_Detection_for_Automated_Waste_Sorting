@@ -29,3 +29,8 @@ EPOCHS = 50
 PATIENCE = 15            # early stopping: epochs without validation improvement
 IMG_SIZE = 640           # upscaled from 416 to help small objects
 BATCH = 16
+
+
+# =================================================================== evaluation
+EVAL_DIR = RESULTS_DIR / "evaluation"                # test metrics and plots
+MAX_DET = 500            # some images contain more than 300 objects (default limit is 300)
