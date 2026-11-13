@@ -25,3 +25,15 @@ from config import CLASS_NAMES, DATASET_DIR
 def image_class(filename):
     """Class the image was collected for, from the filename prefix ('glass123_jpg...' -> 'glass')."""
     return re.match(r"[a-z]+", filename.lower()).group(0)
+
+def parse_label_line(line):
+    """Return (class, x, y, w, h) for a valid YOLO line, or None if the line is malformed or zero-size."""
+    parts = line.split()
+    if len(parts) != 5:
+        return None
+    c, x, y, w, h = int(parts[0]), *map(float, parts[1:])
+    if not 0 <= c < len(CLASS_NAMES) or w <= 0 or h <= 0:
+        return None
+    if not all(0 <= v <= 1 for v in (x, y, w, h)):
+        return None
+    return c, x, y, w, h
