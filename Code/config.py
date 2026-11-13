@@ -10,3 +10,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent        # project root (the folder that contains Code/)
 DATASET_DIR = ROOT / "GarbageDataset"                # unzipped dataset: images/ + labels/
 DATA_YAML = DATASET_DIR / "data.yaml"                # written by data.py
+
+
+# =================================================================== dataset
+# Class IDs follow alphabetical order (verified against the filename prefixes).
+CLASS_NAMES = ["biodegradable", "cardboard", "glass", "metal", "paper", "plastic"]
