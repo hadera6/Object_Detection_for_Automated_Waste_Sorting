@@ -12,6 +12,7 @@ Code/
   data.py        load labels, remove zero-size boxes, 70/15/15 split, data.yaml
   train.py       train YOLOv5s and save weights/best.pt
   evaluate.py    test-set metrics: precision, recall, F1, mAP (overall and per class)
+  main.py        runs data.py -> train.py -> evaluate.py in one command
 garbage_detection.ipynb   full story: dataset analysis, decisions, training,
                           evaluation, error analysis, example detections
 weights/best.pt   trained model
@@ -24,9 +25,15 @@ GarbageDataset/   dataset (not in the repository): images/ + labels/
 ```bash
 pip install -r packages.txt
 # unzip the dataset so that GarbageDataset/images and GarbageDataset/labels exist
+python Code/main.py               # whole pipeline: prepare data -> train -> evaluate
+python Code/main.py --retrain     # same, but train again even if weights/best.pt exists
+```
+
+Or run the steps one by one:
+
+```bash
 python Code/data.py               # clean labels, split, write data.yaml
 python Code/train.py              # train (skipped if weights/best.pt exists)
-python Code/train.py --retrain    # train again
 python Code/evaluate.py           # test-set metrics -> results/evaluation/
 ```
 
