@@ -20,7 +20,7 @@ import random
 import re
 from collections import defaultdict
 
-from config import CLASS_NAMES, DATASET_DIR
+from config import CLASS_NAMES, DATA_YAML, DATASET_DIR, SEED, SPLIT_RATIOS
 
 
 # =================================================================== loading
@@ -93,3 +93,25 @@ def write_data_yaml(dataset_dir):
     (dataset_dir / "data.yaml").write_text(
         f"path: {dataset_dir.resolve()}\ntrain: train.txt\nval: val.txt\ntest: test.txt\n\n"
         f"nc: {len(CLASS_NAMES)}\nnames:\n{names}")
+
+
+# =================================================================== main
+def main():
+    if not (DATASET_DIR / "images").is_dir():
+        raise SystemExit(f"Dataset not found: {DATASET_DIR}/images\n"
+                         "Unzip GarbageDataset.zip in the project folder first.")
+
+    records, invalid = load_dataset(DATASET_DIR)
+    remove_invalid_boxes(records, invalid)
+    print(f"{len(records):,} images, {sum(len(r['boxes']) for r in records):,} boxes, "
+          f"{sum(invalid.values())} invalid boxes removed")
+
+    splits = stratified_split(records, SPLIT_RATIOS, SEED)
+    write_split_lists(splits, DATASET_DIR)
+    write_data_yaml(DATASET_DIR)
+    print("Split: " + ", ".join(f"{name} {len(recs):,}" for name, recs in splits.items()))
+    print(f"data.yaml written to {DATA_YAML}")
+
+
+if __name__ == "__main__":
+    main()
