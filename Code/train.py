@@ -1,15 +1,4 @@
-"""
-Step 2: train the YOLOv5 detector and save the weights.
-
-    python Code/train.py              train (skipped if weights/best.pt already exists)
-    python Code/train.py --retrain    train again even if the weights exist
-
-Requires data.yaml and the split lists from 'python Code/data.py'.
-Fine-tunes a COCO-pretrained YOLOv5s with the default ultralytics augmentation
-(mosaic, horizontal flip, HSV colour, scale, translate) and early stopping on the validation set.
-The best checkpoint (by validation mAP) is copied to weights/best.pt.
-All settings (model, epochs, image size, batch, paths) are in config.py.
-"""
+"""Step 2: fine-tune the COCO-pretrained YOLOv5s on our data and save the best model to weights/best.pt."""
 import argparse
 import shutil
 
@@ -17,9 +6,9 @@ from config import (BATCH, DATA_YAML, EPOCHS, IMG_SIZE, MODEL, PATIENCE, RESULTS
                     WEIGHTS_DIR)
 
 
-# =================================================================== training
+# ----------------------------------------------------------------- training
 def train():
-    """Train with ultralytics, copy the best checkpoint to weights/best.pt and return its path."""
+    """Train YOLO (default augmentation, early stopping) and copy the best checkpoint to weights/best.pt."""
     from ultralytics import YOLO
 
     if not DATA_YAML.exists():
@@ -37,16 +26,18 @@ def train():
         name=RUN_NAME,
         exist_ok=True,
     )
+
     WEIGHTS_DIR.mkdir(parents=True, exist_ok=True)
     best = WEIGHTS_DIR / "best.pt"
     shutil.copy2(RESULTS_DIR / "runs" / RUN_NAME / "weights" / "best.pt", best)
     return best
 
 
-# =================================================================== main
+# ----------------------------------------------------------------- main
 def main():
+    """Train only if no model exists yet, unless --retrain is given."""
     ap = argparse.ArgumentParser(description="Train the YOLOv5 garbage detector.")
-    ap.add_argument("--retrain", action="store_true", help="train again even if the weights already exist")
+    ap.add_argument("--retrain", action="store_true", help="train again even if weights/best.pt exists")
     args = ap.parse_args()
 
     best = WEIGHTS_DIR / "best.pt"
