@@ -1,36 +1,26 @@
-"""
-All settings for the garbage detection project, in one place.
-
-data.py and train.py import from here; change settings only in this file.
-Paths are built from this file's location, so the scripts work from any folder.
-"""
+"""Settings for the garbage detection project (used by all scripts in Code/)."""
 from pathlib import Path
 
-# =================================================================== paths
-ROOT = Path(__file__).resolve().parent.parent        # project root (the folder that contains Code/)
-DATASET_DIR = ROOT / "GarbageDataset"                # unzipped dataset: images/ + labels/
-DATA_YAML = DATASET_DIR / "data.yaml"                # written by data.py
+# Paths (relative to the project root, so the code runs from any folder)
+ROOT = Path(__file__).resolve().parent.parent   # project folder that contains Code/
+DATASET_DIR = ROOT / "GarbageDataset"           # images/ and labels/
+DATA_YAML = DATASET_DIR / "data.yaml"           # YOLO dataset file, written by data.py
+RESULTS_DIR = ROOT / "results"                  # training runs
+WEIGHTS_DIR = ROOT / "weights"                  # final model (best.pt)
+EVAL_DIR = RESULTS_DIR / "evaluation"           # test metrics and plots
 
-RESULTS_DIR = ROOT / "results"                       # training runs
-WEIGHTS_DIR = ROOT / "weights"                       # final model: best.pt
-
-
-# =================================================================== dataset
-# Class IDs follow alphabetical order (verified against the filename prefixes).
-CLASS_NAMES = ["biodegradable", "cardboard", "glass", "metal", "paper", "plastic"]
+# Dataset
+CLASS_NAMES = ["biodegradable", "cardboard", "glass", "metal", "paper", "plastic"]  # class IDs 0-5
 SPLIT_RATIOS = {"train": 0.70, "val": 0.15, "test": 0.15}
-SEED = 42
+SEED = 42                                       # same split on every run
 
-
-# =================================================================== training
-MODEL = "yolov5su.pt"    # YOLOv5-small, COCO-pretrained
+# Training
+MODEL = "yolov5su.pt"     # YOLOv5s, COCO-pretrained
 RUN_NAME = "yolov5s_640"
 EPOCHS = 50
-PATIENCE = 15            # early stopping: epochs without validation improvement
-IMG_SIZE = 640           # upscaled from 416 to help small objects
+PATIENCE = 15             # early stopping after 15 epochs without improvement
+IMG_SIZE = 640            # images upscaled from 416 px to help small objects
 BATCH = 16
 
-
-# =================================================================== evaluation
-EVAL_DIR = RESULTS_DIR / "evaluation"                # test metrics and plots
-MAX_DET = 500            # some images contain more than 300 objects (default limit is 300)
+# Evaluation
+MAX_DET = 500             # max boxes per image (some images have > 300 objects)
