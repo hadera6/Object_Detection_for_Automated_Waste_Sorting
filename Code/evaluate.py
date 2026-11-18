@@ -1,28 +1,24 @@
-"""
-Step 3: evaluate the trained model on the test set.
-
-    python Code/evaluate.py
-
-Requires weights/best.pt (from train.py) and the split lists from data.py.
-Computes precision, recall, F1, AP@0.5 and AP@[.50:.95] per class, plus the overall values
-(mAP = mean AP over the classes), on the held-out test set that was never used in training.
-Saves test_metrics.json and test_per_class.csv to results/evaluation/; ultralytics also saves
-the confusion matrix and the precision-recall curve to results/evaluation/test/.
-"""
+"""Step 3: evaluate weights/best.pt once on the test set and save the metrics to results/evaluation/."""
 import csv
 import json
 
 from config import BATCH, DATA_YAML, EVAL_DIR, IMG_SIZE, MAX_DET, WEIGHTS_DIR
 
 
-# =================================================================== metrics
+# ----------------------------------------------------------------- metrics
 def f1_score(precision, recall):
     """Harmonic mean of precision and recall (0 if both are 0)."""
     return 2 * precision * recall / (precision + recall) if precision + recall else 0.0
 
 
 def evaluate():
-    """Run the ultralytics evaluation on the test split; return overall metrics and one row per class."""
+    """Run YOLO on the test split.
+
+    Returns:
+        overall: mAP@0.5, mAP@[.50:.95], precision, recall and F1 over all classes
+        rows:    the same metrics per class, sorted from weakest to strongest AP@[.50:.95]
+    Ultralytics also saves the confusion matrix and PR curve to results/evaluation/test/.
+    """
     from ultralytics import YOLO
 
     best = WEIGHTS_DIR / "best.pt"
@@ -48,9 +44,9 @@ def evaluate():
     return overall, rows
 
 
-# =================================================================== output
+# ----------------------------------------------------------------- output
 def save_results(overall, rows):
-    """Write test_metrics.json and test_per_class.csv to EVAL_DIR."""
+    """Save the overall metrics to test_metrics.json and the per-class metrics to test_per_class.csv."""
     EVAL_DIR.mkdir(parents=True, exist_ok=True)
     (EVAL_DIR / "test_metrics.json").write_text(json.dumps({k: round(v, 4) for k, v in overall.items()}, indent=2))
     with open(EVAL_DIR / "test_per_class.csv", "w", newline="") as f:
@@ -60,6 +56,7 @@ def save_results(overall, rows):
 
 
 def print_results(overall, rows):
+    """Print the overall metrics and a per-class table."""
     print(f"\nTest set:  mAP@0.5 = {overall['mAP50']:.3f}   mAP@[.50:.95] = {overall['mAP50-95']:.3f}   "
           f"precision = {overall['precision']:.3f}   recall = {overall['recall']:.3f}   F1 = {overall['f1']:.3f}\n")
     print(f"{'class':<15}{'precision':>10}{'recall':>8}{'F1':>7}{'AP@0.5':>8}{'AP@[.50:.95]':>14}")
@@ -69,7 +66,7 @@ def print_results(overall, rows):
     print(f"\nSaved to {EVAL_DIR}")
 
 
-# =================================================================== main
+# ----------------------------------------------------------------- main
 def main():
     overall, rows = evaluate()
     save_results(overall, rows)
